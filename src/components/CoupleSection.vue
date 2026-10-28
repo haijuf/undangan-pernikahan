@@ -1,9 +1,10 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-defineProps({
+const props = defineProps({
   couple: { type: Object, required: true },
   story: { type: Object, required: true },
+  prewedding: { type: Array, default: () => [] },
 })
 
 // Hanya dekorasi (bukan data undangan)
@@ -104,6 +105,18 @@ const wreath = [branch(100, 238, 1), branch(80, -58, -1)]
         </article>
         <span v-if="idx === 0" class="couple-amp reveal" style="--i: 3" aria-hidden="true">&amp;</span>
       </template>
+    </div>
+
+    <!-- Galeri prewedding: grid 2 kolom (2x2) -->
+    <div class="prewedding-gallery">
+      <figure
+        v-for="(photo, i) in prewedding"
+        :key="photo.src"
+        class="prewedding-photo reveal"
+        :style="{ '--i': i + 1 }"
+      >
+        <img :src="photo.src" :alt="photo.alt" loading="lazy" />
+      </figure>
     </div>
   </section>
 </template>
@@ -300,6 +313,75 @@ const wreath = [branch(100, 238, 1), branch(80, -58, -1)]
   color: var(--muted);
 }
 
+/* Galeri grid 2x2 */
+.prewedding-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 22px);
+  max-width: 980px;
+  margin: clamp(56px, 8vw, 84px) auto 0;
+}
+
+.prewedding-photo {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(176, 138, 62, 0.35);
+  border-radius: 6px;
+  background: linear-gradient(135deg, #f8f5ee, #efe6d2);
+  box-shadow: 0 24px 48px -30px rgba(134, 103, 42, 0.55);
+  cursor: pointer;
+}
+
+.prewedding-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1), filter 0.8s ease;
+}
+
+/* Bingkai tipis di dalam foto */
+.prewedding-photo::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: inset 0.6s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.6s ease;
+}
+
+/* Overlay gelap tipis saat hover */
+.prewedding-photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 55%, rgba(42, 36, 28, 0.35));
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+/* Hover */
+.prewedding-photo:hover img {
+  transform: scale(1.08);
+  filter: saturate(1.1) brightness(1.03);
+}
+.prewedding-photo:hover::after {
+  inset: 14px;
+  border-color: rgba(255, 255, 255, 0.95);
+}
+.prewedding-photo:hover::before {
+  opacity: 1;
+}
+
 @keyframes shine { from { background-position: 0% center; } to { background-position: 220% center; } }
 @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -308,6 +390,9 @@ const wreath = [branch(100, 238, 1), branch(80, -58, -1)]
   .couple-grid { grid-template-columns: 1fr; }
   .couple-amp { margin: -4px 0; }
   .reveal.from-left, .reveal.from-right { transform: translateY(34px); }
+  .prewedding-gallery { margin-top: 56px; gap: 8px; }
+  .prewedding-photo { border-radius: 4px; }
+  .prewedding-photo::after { inset: 5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

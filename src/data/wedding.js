@@ -10,14 +10,36 @@ export const weddingData = {
     },
     groom: {
       name: 'Jalaludin Shofa Mufti',
-      shortName: 'Jalaludin',
+      shortName: 'Jalal',
       role: 'Mempelai Pria',
       parents: 'Putra Terbaik Dari Keluarga',
       initial: 'J',
     },
     date: 'Jumat, 30 Oktober 2026',
-    shortNames: 'Jalaludin & Salma',
+    shortNames: 'Jalal & Salma',
   },
+  prewedding: [
+    {
+      src: '/foto-1.jpg',
+      alt: 'Foto prewedding pertama',
+      orientation: 'portrait',
+    },
+    {
+      src: '/foto-2.jpg',
+      alt: 'Foto prewedding kedua',
+      orientation: 'portrait',
+    },
+    {
+      src: '/foto-3.jpg',
+      alt: 'Foto prewedding ketiga',
+      orientation: 'portrait',
+    },
+    {
+      src: '/foto-4.jpg',
+      alt: 'Foto prewedding keempat',
+      orientation: 'portrait',
+    },
+  ],
   event: {
     akad: {
       title: 'Akad Nikah',
@@ -25,7 +47,7 @@ export const weddingData = {
       time: '15.30 WIB - selesai',
     },
     reception: {
-      title: 'Makan-makan',
+      title: 'Makan bersama',
       date: 'Jumat, 30 Oktober 2026',
       time: '20.00 WIB - selesai',
       venueName: 'Aroem Bandung Resto & Cafe',
@@ -58,7 +80,7 @@ export const weddingData = {
   rundown: [
     { title: 'Akad Nikah', description: 'Prosesi ijab kabul sebagai awal perjalanan suci kami.' },
     { title: 'Dokumentasi', description: 'Dokumentasi bersama keluarga, mengabadikan momen-momen indah.' },
-    { title: 'Makan-makan', description: 'Syukuran dan silaturahmi berbagi kebahagiaan bersama keluarga.' },
+    { title: 'Makan bersama', description: 'Syukuran dan silaturahmi berbagi kebahagiaan bersama keluarga.' },
   ],
   concept: [
     { title: 'Putih', description: 'Kesucian niat dalam memulai perjalanan baru.' },

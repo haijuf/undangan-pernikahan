@@ -86,7 +86,7 @@ onBeforeUnmount(() => io && io.disconnect())
         </svg>
       </div>
       <h2 class="reveal" style="--i: 1">Informasi Acara</h2>
-      <p class="reveal" style="--i: 2">Akad hingga makan-makan</p>
+      <p class="reveal" style="--i: 2">Akad hingga makan bersama</p>
     </div>
 
     <div class="event-grid">
@@ -109,7 +109,7 @@ onBeforeUnmount(() => io && io.disconnect())
         <p class="event-date"><strong>{{ item.date }}</strong></p>
         <p class="event-time">{{ item.time }}</p>
         <p v-if="item.venueName" class="event-location">{{ item.venueName }}</p>
-        <a v-if="item.mapUrl" class="event-map-link" :href="item.mapUrl" target="_blank" rel="noreferrer">Lihat lokasi makan-makan &#8599;</a>
+        <a v-if="item.mapUrl" class="event-map-link" :href="item.mapUrl" target="_blank" rel="noreferrer">Lihat lokasi makan bersama &#8599;</a>
       </article>
     </div>
 

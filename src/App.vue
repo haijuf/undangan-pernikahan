@@ -63,7 +63,11 @@ onBeforeUnmount(() => { document.body.classList.remove('lock-scroll') })
     <main>
       <HeroSection :couple="weddingData.couple" :story="weddingData.story" />
 
-      <CoupleSection :couple="weddingData.couple" :story="weddingData.story" />
+      <CoupleSection
+        :couple="weddingData.couple"
+        :story="weddingData.story"
+        :prewedding="weddingData.prewedding"
+      />
       <EventDetails :event="weddingData.event" :venue="weddingData.venue" />
       <section class="countdown-section">
         <p class="eyebrow">Menuju hari bahagia</p>
