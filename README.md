@@ -76,3 +76,25 @@ berikutnya perlu API atau backend/database.
 Browser biasanya memblokir autoplay. Karena itu musik dimulai setelah aksi
 pengunjung. Jika file belum ada, halaman akan menampilkan lokasi file yang
 perlu ditambahkan. Pastikan lagu yang digunakan memiliki hak penggunaan.
+## Menghubungkan doa ke Supabase
+
+Package `@supabase/supabase-js` digunakan oleh
+[`src/lib/supabase.js`](./src/lib/supabase.js) dan
+[`WishesSection.vue`](./src/components/WishesSection.vue).
+
+1. Salin `.env.example` menjadi `.env.local`.
+2. Isi `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY` dari **Project
+   Settings → API** di Supabase.
+3. Pastikan tabel `wishes` sudah dibuat dan policy `select` serta `insert`
+   untuk role `anon` sudah aktif.
+4. Jalankan ulang `npm run dev` setelah mengubah `.env.local`.
+
+Tanpa environment variable, halaman tetap menampilkan doa awal dari
+`wedding.js`, tetapi form tidak mengirim data online. Setelah variable diisi,
+doa dibaca dan disimpan di Supabase sehingga dapat dilihat semua pengunjung dan
+tetap ada setelah refresh.
+
+Tambahkan variable yang sama di **Vercel → Project Settings → Environment
+Variables** untuk environment Production, Preview, dan Development, lalu
+deploy ulang. Gunakan hanya publishable/anon key; jangan pernah memasukkan
+`service_role` key ke frontend.

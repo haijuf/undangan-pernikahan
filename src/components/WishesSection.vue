@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { isSupabaseConfigured, supabase } from '../lib/supabase.js'
 
 const props = defineProps({
   initialWishes: { type: Array, required: true },
@@ -8,15 +9,40 @@ const props = defineProps({
 const wishes = ref([])
 const form = ref({ name: '', message: '' })
 const submitted = ref(false)
-const storageKey = 'undangan-wishes'
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 // Hanya animasi saat di-scroll (bukan data undangan)
 const root = ref(null)
 let io
 
+async function loadWishes() {
+  if (!isSupabaseConfigured) {
+    wishes.value = [...props.initialWishes]
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+  const { data, error } = await supabase
+    .from('wishes')
+    .select('id, name, message, created_at')
+    .order('created_at', { ascending: false })
+
+  isLoading.value = false
+
+  if (error) {
+    wishes.value = [...props.initialWishes]
+    errorMessage.value = 'Doa online belum dapat dimuat. Menampilkan doa awal.'
+    console.error('Failed to load wishes from Supabase:', error)
+    return
+  }
+
+  wishes.value = data
+}
+
 onMounted(() => {
-  const saved = window.localStorage.getItem(storageKey)
-  wishes.value = saved ? JSON.parse(saved) : [...props.initialWishes]
+  loadWishes()
 
   const els = root.value ? root.value.querySelectorAll('.reveal') : []
   if (!('IntersectionObserver' in window)) {
@@ -37,15 +63,35 @@ onMounted(() => {
 })
 onBeforeUnmount(() => io && io.disconnect())
 
-function submitWish() {
-  if (!form.value.name.trim() || !form.value.message.trim()) return
-  wishes.value.unshift({
-    id: Date.now(),
-    name: form.value.name.trim(),
-    message: form.value.message.trim(),
-    createdAt: new Date().toISOString(),
-  })
-  window.localStorage.setItem(storageKey, JSON.stringify(wishes.value))
+async function submitWish() {
+  const name = form.value.name.trim()
+  const message = form.value.message.trim()
+  if (!name || !message || isLoading.value) return
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  if (!isSupabaseConfigured) {
+    errorMessage.value = 'Supabase belum dikonfigurasi. Tambahkan environment variable terlebih dahulu.'
+    isLoading.value = false
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('wishes')
+    .insert({ name, message })
+    .select('id, name, message, created_at')
+    .single()
+
+  isLoading.value = false
+
+  if (error) {
+    errorMessage.value = 'Ucapan belum berhasil dikirim. Silakan coba lagi.'
+    console.error('Failed to save wish to Supabase:', error)
+    return
+  }
+
+  wishes.value.unshift(data)
   form.value = { name: '', message: '' }
   submitted.value = true
   window.setTimeout(() => { submitted.value = false }, 3000)
@@ -83,16 +129,20 @@ function submitWish() {
       <span class="form-leaf form-leaf-r" aria-hidden="true"></span>
       <input v-model="form.name" type="text" placeholder="Nama Anda" required>
       <textarea v-model="form.message" rows="3" placeholder="Tuliskan doa dan ucapan..." required></textarea>
-      <button class="gold-button" type="submit">Kirim Ucapan</button>
+      <button class="gold-button" type="submit" :disabled="isLoading">
+        {{ isLoading ? 'Menyimpan...' : 'Kirim Ucapan' }}
+      </button>
       <Transition name="pop">
         <small v-if="submitted" class="success-message">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-          Ucapan berhasil disimpan di perangkat ini.
+          Ucapan berhasil disimpan dan dapat dilihat oleh semua tamu.
         </small>
       </Transition>
+      <small v-if="errorMessage" class="error-message">{{ errorMessage }}</small>
     </form>
 
     <div class="wish-list reveal" style="--i: 3">
+      <p v-if="isLoading && !wishes.length" class="wish-status">Memuat doa dan ucapan...</p>
       <TransitionGroup name="wish">
         <article
           v-for="(wish, idx) in wishes"
@@ -263,6 +313,7 @@ function submitWish() {
   transition: transform 0.9s ease;
 }
 .gold-button:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -14px rgba(134, 103, 42, 0.8); }
+.gold-button:disabled { cursor: wait; opacity: .65; transform: none; }
 .gold-button:hover::after { transform: translateX(120%); }
 .gold-button:active { transform: translateY(0) scale(0.98); }
 .gold-button:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
@@ -278,6 +329,13 @@ function submitWish() {
   color: var(--gold-deep);
 }
 .success-message svg { width: 18px; height: 18px; padding: 3px; box-sizing: border-box; border-radius: 50%; color: #fff; background: var(--gold); }
+.error-message, .wish-status {
+  display: block;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+.error-message { color: #9a6a4f; }
 .pop-enter-active, .pop-leave-active { transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
 .pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(8px); }
 
